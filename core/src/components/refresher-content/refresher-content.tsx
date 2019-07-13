@@ -1,13 +1,14 @@
-import { Component, ComponentInterface, Prop } from '@stencil/core';
+import { Component, ComponentInterface, Prop, h } from '@stencil/core';
 
-import { Config, SpinnerTypes } from '../../interface';
+import { config } from '../../global/config';
+import { getIonMode } from '../../global/ionic-global';
+import { SpinnerTypes } from '../../interface';
+import { sanitizeDOMString } from '../../utils/sanitization';
 
 @Component({
   tag: 'ion-refresher-content'
 })
 export class RefresherContent implements ComponentInterface {
-
-  @Prop({ context: 'config' }) config!: Config;
 
   /**
    * A static icon to display when you begin to pull down
@@ -15,7 +16,13 @@ export class RefresherContent implements ComponentInterface {
   @Prop({ mutable: true }) pullingIcon?: string | null;
 
   /**
-   * The text you want to display when you begin to pull down
+   * The text you want to display when you begin to pull down.
+   * `pullingText` can accept either plaintext or HTML as a string.
+   * To display characters normally reserved for HTML, they
+   * must be escaped. For example `<Ionic>` would become
+   * `&lt;Ionic&gt;`
+   *
+   * For more information: [Security Documentation](https://ionicframework.com/docs/faq/security)
    */
   @Prop() pullingText?: string;
 
@@ -25,17 +32,36 @@ export class RefresherContent implements ComponentInterface {
   @Prop({ mutable: true }) refreshingSpinner?: SpinnerTypes | null;
 
   /**
-   * The text you want to display when performing a refresh
+   * The text you want to display when performing a refresh.
+   * `refreshingText` can accept either plaintext or HTML as a string.
+   * To display characters normally reserved for HTML, they
+   * must be escaped. For example `<Ionic>` would become
+   * `&lt;Ionic&gt;`
+   *
+   * For more information: [Security Documentation](https://ionicframework.com/docs/faq/security)
    */
   @Prop() refreshingText?: string;
 
   componentWillLoad() {
     if (this.pullingIcon === undefined) {
-      this.pullingIcon = this.config.get('refreshingIcon', 'arrow-down');
+      this.pullingIcon = config.get('refreshingIcon', 'arrow-down');
     }
     if (this.refreshingSpinner === undefined) {
-      this.refreshingSpinner = this.config.get('refreshingSpinner', this.config.get('spinner', 'lines'));
+      const mode = getIonMode(this);
+      this.refreshingSpinner = config.get(
+        'refreshingSpinner',
+        config.get('spinner', mode === 'ios' ? 'lines' : 'crescent')
+      );
     }
+  }
+
+  hostData() {
+    const mode = getIonMode(this);
+    return {
+      class: {
+        [mode]: true,
+      }
+    };
   }
 
   render() {
@@ -47,7 +73,7 @@ export class RefresherContent implements ComponentInterface {
           </div>
         }
         {this.pullingText &&
-          <div class="refresher-pulling-text" innerHTML={this.pullingText}></div>
+          <div class="refresher-pulling-text" innerHTML={sanitizeDOMString(this.pullingText)}></div>
         }
       </div>,
       <div class="refresher-refreshing">
@@ -57,7 +83,7 @@ export class RefresherContent implements ComponentInterface {
           </div>
         }
         {this.refreshingText &&
-          <div class="refresher-refreshing-text" innerHTML={this.refreshingText}></div>
+          <div class="refresher-refreshing-text" innerHTML={sanitizeDOMString(this.refreshingText)}></div>
         }
       </div>
     ];

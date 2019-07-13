@@ -4,7 +4,7 @@ A Popover is a dialog that appears on top of the current page. It can be used fo
 
 ### Creating
 
-Popovers can be created using a [Popover Controller](https://beta.ionicframework.com/docs/api/popover-controller). They can be customized by passing popover options in the popover controller's create method.
+Popovers can be created using a [Popover Controller](../popover-controller). They can be customized by passing popover options in the popover controller's create method.
 
 ### Presenting
 
@@ -52,11 +52,35 @@ async function presentPopover(ev) {
 
   const popover = await popoverController.create({
     component: 'popover-example-page',
-    translucent: true
     event: ev,
+    translucent: true
   });
   return await popover.present();
 }
+```
+
+
+### React
+
+```tsx
+import React, { useState } from 'react';
+import { IonPopover, IonButton } from '@ionic/react';
+
+export const PopoverExample: React.FunctionComponent = () => {
+  const [showPopover, setShowPopover] = useState(false);
+
+  return (
+    <>
+      <IonPopover
+        isOpen={showPopover}
+        onDidDismiss={e => setShowPopover(false)}
+      >
+        <p>This is popover content</p>
+      </IonPopover>
+      <IonButton onClick={() => setShowPopover(true)}>Show Popover</IonButton>
+    </>
+  );
+};
 ```
 
 
@@ -81,12 +105,12 @@ async function presentPopover(ev) {
 
 ## Events
 
-| Event                   | Description                               | Type                              |
-| ----------------------- | ----------------------------------------- | --------------------------------- |
-| `ionPopoverDidDismiss`  | Emitted after the popover has dismissed.  | `CustomEvent<OverlayEventDetail>` |
-| `ionPopoverDidPresent`  | Emitted after the popover has presented.  | `CustomEvent<void>`               |
-| `ionPopoverWillDismiss` | Emitted before the popover has dismissed. | `CustomEvent<OverlayEventDetail>` |
-| `ionPopoverWillPresent` | Emitted before the popover has presented. | `CustomEvent<void>`               |
+| Event                   | Description                               | Type                                   |
+| ----------------------- | ----------------------------------------- | -------------------------------------- |
+| `ionPopoverDidDismiss`  | Emitted after the popover has dismissed.  | `CustomEvent<OverlayEventDetail<any>>` |
+| `ionPopoverDidPresent`  | Emitted after the popover has presented.  | `CustomEvent<void>`                    |
+| `ionPopoverWillDismiss` | Emitted before the popover has dismissed. | `CustomEvent<OverlayEventDetail<any>>` |
+| `ionPopoverWillPresent` | Emitted before the popover has presented. | `CustomEvent<void>`                    |
 
 
 ## Methods
@@ -94,13 +118,6 @@ async function presentPopover(ev) {
 ### `dismiss(data?: any, role?: string | undefined) => Promise<boolean>`
 
 Dismiss the popover overlay after it has been presented.
-
-#### Parameters
-
-| Name   | Type                  | Description |
-| ------ | --------------------- | ----------- |
-| `data` | `any`                 |             |
-| `role` | `string \| undefined` |             |
 
 #### Returns
 
@@ -152,6 +169,19 @@ Type: `Promise<void>`
 | `--min-width`  | Minimum width of the popover  |
 | `--width`      | Width of the popover          |
 
+
+## Dependencies
+
+### Depends on
+
+- [ion-backdrop](../backdrop)
+
+### Graph
+```mermaid
+graph TD;
+  ion-popover --> ion-backdrop
+  style ion-popover fill:#f9f,stroke:#333,stroke-width:4px
+```
 
 ----------------------------------------------
 

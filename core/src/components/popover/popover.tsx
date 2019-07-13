@@ -1,6 +1,7 @@
-import { Component, ComponentInterface, Element, Event, EventEmitter, Listen, Method, Prop } from '@stencil/core';
+import { Component, ComponentInterface, Element, Event, EventEmitter, Listen, Method, Prop, h } from '@stencil/core';
 
-import { Animation, AnimationBuilder, ComponentProps, ComponentRef, Config, FrameworkDelegate, Mode, OverlayEventDetail, OverlayInterface } from '../../interface';
+import { getIonMode } from '../../global/ionic-global';
+import { Animation, AnimationBuilder, ComponentProps, ComponentRef, FrameworkDelegate, OverlayEventDetail, OverlayInterface } from '../../interface';
 import { attachComponent, detachComponent } from '../../utils/framework-delegate';
 import { BACKDROP, dismiss, eventMethod, present } from '../../utils/overlays';
 import { getClassMap } from '../../utils/theme';
@@ -11,6 +12,9 @@ import { iosLeaveAnimation } from './animations/ios.leave';
 import { mdEnterAnimation } from './animations/md.enter';
 import { mdLeaveAnimation } from './animations/md.leave';
 
+/**
+ * @virtualProp {"ios" | "md"} mode - The mode determines which platform styles to use.
+ */
 @Component({
   tag: 'ion-popover',
   styleUrls: {
@@ -25,21 +29,15 @@ export class Popover implements ComponentInterface, OverlayInterface {
 
   presented = false;
   animation?: Animation;
+  mode = getIonMode(this);
 
   @Element() el!: HTMLElement;
-
-  @Prop({ context: 'config' }) config!: Config;
 
   /** @internal */
   @Prop() delegate?: FrameworkDelegate;
 
   /** @internal */
   @Prop() overlayIndex!: number;
-
-  /**
-   * The mode determines which platform styles to use.
-   */
-  @Prop() mode!: Mode;
 
   /**
    * Animation to use when the popover is presented.
@@ -170,6 +168,9 @@ export class Popover implements ComponentInterface, OverlayInterface {
 
   /**
    * Dismiss the popover overlay after it has been presented.
+   *
+   * @param data Any data to emit in the dismiss events.
+   * @param role The role of the element that is dismissing the popover. For example, 'cancel' or 'backdrop'.
    */
   @Method()
   async dismiss(data?: any, role?: string): Promise<boolean> {
@@ -197,6 +198,7 @@ export class Popover implements ComponentInterface, OverlayInterface {
   }
 
   hostData() {
+    const mode = getIonMode(this);
     return {
       'aria-modal': 'true',
       'no-router': true,
@@ -205,6 +207,7 @@ export class Popover implements ComponentInterface, OverlayInterface {
       },
       class: {
         ...getClassMap(this.cssClass),
+        [mode]: true,
         'popover-translucent': this.translucent
       }
     };

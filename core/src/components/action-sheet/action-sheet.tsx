@@ -1,7 +1,8 @@
-import { Component, ComponentInterface, Element, Event, EventEmitter, Listen, Method, Prop } from '@stencil/core';
+import { Component, ComponentInterface, Element, Event, EventEmitter, Listen, Method, Prop, h } from '@stencil/core';
 
-import { ActionSheetButton, Animation, AnimationBuilder, Config, CssClassMap, Mode, OverlayEventDetail, OverlayInterface } from '../../interface';
-import { BACKDROP, dismiss, eventMethod, isCancel, present } from '../../utils/overlays';
+import { getIonMode } from '../../global/ionic-global';
+import { ActionSheetButton, Animation, AnimationBuilder, CssClassMap, OverlayEventDetail, OverlayInterface } from '../../interface';
+import { BACKDROP, dismiss, eventMethod, isCancel, present, safeCall } from '../../utils/overlays';
 import { getClassMap } from '../../utils/theme';
 
 import { iosEnterAnimation } from './animations/ios.enter';
@@ -9,6 +10,9 @@ import { iosLeaveAnimation } from './animations/ios.leave';
 import { mdEnterAnimation } from './animations/md.enter';
 import { mdLeaveAnimation } from './animations/md.leave';
 
+/**
+ * @virtualProp {"ios" | "md"} mode - The mode determines which platform styles to use.
+ */
 @Component({
   tag: 'ion-action-sheet',
   styleUrls: {
@@ -21,17 +25,12 @@ export class ActionSheet implements ComponentInterface, OverlayInterface {
 
   presented = false;
   animation?: Animation;
+  mode = getIonMode(this);
 
   @Element() el!: HTMLElement;
 
-  @Prop({ context: 'config' }) config!: Config;
   /** @internal */
   @Prop() overlayIndex!: number;
-
-  /**
-   * The mode determines which platform styles to use.
-   */
-  @Prop() mode!: Mode;
 
   /**
    * If `true`, the keyboard will be automatically dismissed when the overlay is presented.
@@ -51,7 +50,7 @@ export class ActionSheet implements ComponentInterface, OverlayInterface {
   /**
    * An array of buttons for the action sheet.
    */
-  @Prop() buttons!: (ActionSheetButton | string)[];
+  @Prop() buttons: (ActionSheetButton | string)[] = [];
 
   /**
    * Additional classes to apply for custom CSS. If multiple classes are
@@ -128,6 +127,12 @@ export class ActionSheet implements ComponentInterface, OverlayInterface {
 
   /**
    * Dismiss the action sheet overlay after it has been presented.
+   *
+   * @param data Any data to emit in the dismiss events.
+   * @param role The role of the element that is dismissing the action sheet.
+   * This can be useful in a button handler for determining which button was
+   * clicked to dismiss the action sheet.
+   * Some examples include: ``"cancel"`, `"destructive"`, "selected"`, and `"backdrop"`.
    */
   @Method()
   dismiss(data?: any, role?: string): Promise<boolean> {
@@ -135,7 +140,7 @@ export class ActionSheet implements ComponentInterface, OverlayInterface {
   }
 
   /**
-   * Returns a promise that resolves when the action-sheet did dismiss.
+   * Returns a promise that resolves when the action sheet did dismiss.
    */
   @Method()
   onDidDismiss(): Promise<OverlayEventDetail> {
@@ -143,7 +148,7 @@ export class ActionSheet implements ComponentInterface, OverlayInterface {
   }
 
   /**
-   * Returns a promise that resolves when the action-sheet will dismiss.
+   * Returns a promise that resolves when the action sheet will dismiss.
    *
    */
   @Method()
@@ -164,17 +169,13 @@ export class ActionSheet implements ComponentInterface, OverlayInterface {
   }
 
   private async callButtonHandler(button: ActionSheetButton | undefined) {
-    if (button && button.handler) {
+    if (button) {
       // a handler has been provided, execute it
       // pass the handler the values from the inputs
-      try {
-        const rtn = await button.handler();
-        if (rtn === false) {
-          // if the return value of the handler is false then do not dismiss
-          return false;
-        }
-      } catch (e) {
-        console.error(e);
+      const rtn = await safeCall(button.handler);
+      if (rtn === false) {
+        // if the return value of the handler is false then do not dismiss
+        return false;
       }
     }
     return true;
@@ -189,6 +190,8 @@ export class ActionSheet implements ComponentInterface, OverlayInterface {
   }
 
   hostData() {
+    const mode = getIonMode(this);
+
     return {
       'role': 'dialog',
       'aria-modal': 'true',
@@ -196,6 +199,8 @@ export class ActionSheet implements ComponentInterface, OverlayInterface {
         zIndex: 20000 + this.overlayIndex,
       },
       class: {
+        [mode]: true,
+
         ...getClassMap(this.cssClass),
         'action-sheet-translucent': this.translucent
       }
@@ -203,6 +208,7 @@ export class ActionSheet implements ComponentInterface, OverlayInterface {
   }
 
   render() {
+    const mode = getIonMode(this);
     const allButtons = this.getButtons();
     const cancelButton = allButtons.find(b => b.role === 'cancel');
     const buttons = allButtons.filter(b => b.role !== 'cancel');
@@ -224,7 +230,7 @@ export class ActionSheet implements ComponentInterface, OverlayInterface {
                   {b.icon && <ion-icon icon={b.icon} lazy={false} class="action-sheet-icon" />}
                   {b.text}
                 </span>
-                {this.mode === 'md' && <ion-ripple-effect></ion-ripple-effect>}
+                {mode === 'md' && <ion-ripple-effect></ion-ripple-effect>}
               </button>
             )}
           </div>
@@ -254,11 +260,11 @@ export class ActionSheet implements ComponentInterface, OverlayInterface {
   }
 }
 
-function buttonClass(button: ActionSheetButton): CssClassMap {
+const buttonClass = (button: ActionSheetButton): CssClassMap => {
   return {
     'action-sheet-button': true,
     'ion-activatable': true,
     [`action-sheet-${button.role}`]: button.role !== undefined,
     ...getClassMap(button.cssClass),
   };
-}
+};

@@ -30,15 +30,9 @@ async function presentLoading() {
 
 ## Methods
 
-### `create(opts?: LoadingOptions | undefined) => Promise<HTMLIonLoadingElement>`
+### `create(options?: LoadingOptions | undefined) => Promise<HTMLIonLoadingElement>`
 
 Create a loading overlay with loading options.
-
-#### Parameters
-
-| Name   | Type                          | Description |
-| ------ | ----------------------------- | ----------- |
-| `opts` | `LoadingOptions \| undefined` |             |
 
 #### Returns
 
@@ -49,14 +43,6 @@ Type: `Promise<HTMLIonLoadingElement>`
 ### `dismiss(data?: any, role?: string | undefined, id?: string | undefined) => Promise<boolean>`
 
 Dismiss the open loading overlay.
-
-#### Parameters
-
-| Name   | Type                  | Description |
-| ------ | --------------------- | ----------- |
-| `data` | `any`                 |             |
-| `role` | `string \| undefined` |             |
-| `id`   | `string \| undefined` |             |
 
 #### Returns
 

@@ -1,8 +1,10 @@
 import { Component, ComponentInterface, Prop } from '@stencil/core';
 
-import { Mode } from '../../interface';
-import { createThemedClasses } from '../../utils/theme';
+import { getIonMode } from '../../global/ionic-global';
 
+/**
+ * @virtualProp {"ios" | "md"} mode - The mode determines which platform styles to use.
+ */
 @Component({
   tag: 'ion-header',
   styleUrls: {
@@ -13,25 +15,23 @@ import { createThemedClasses } from '../../utils/theme';
 export class Header implements ComponentInterface {
 
   /**
-   * The mode determines which platform styles to use.
-   */
-  @Prop() mode!: Mode;
-
-  /**
-   * If `true`, the header will be translucent.
+   * If `true`, the header will be translucent. Only applies to `ios` mode.
    * Note: In order to scroll content behind the header, the `fullscreen`
    * attribute needs to be set on the content.
    */
   @Prop() translucent = false;
 
   hostData() {
-    const themedClasses = createThemedClasses(this.mode, 'header');
-    const translucentClasses = this.translucent ? createThemedClasses(this.mode, 'header-translucent') : null;
-
+    const mode = getIonMode(this);
     return {
       class: {
-        ...themedClasses,
-        ...translucentClasses
+        [mode]: true,
+
+        // Used internally for styling
+        [`header-${mode}`]: true,
+
+        [`header-translucent`]: this.translucent,
+        [`header-translucent-${mode}`]: this.translucent,
       }
     };
   }

@@ -1,22 +1,28 @@
 import React from 'react';
-import { attachEventProps } from './utils'
-import { ensureElementInBody, dashToPascalCase } from './utils';
+import { OverlayEventDetail } from '@ionic/core';
+import { generateUniqueId, attachEventProps } from './utils'
 
-export function createControllerComponent<T, E extends HTMLElement, C extends HTMLElement>(tagName: string, controllerTagName: string) {
-  const displayName = dashToPascalCase(tagName);
+interface LoadingElement {
+  present: () => any;
+  dismiss: () => any;
+}
 
-  type IonicReactInternalProps = {
-    forwardedRef?: React.RefObject<E>;
-    children?: React.ReactNode;
-    show: boolean
+export function createControllerComponent<OptionsType extends object, LoadingElementType extends LoadingElement>(displayName: string, controller: { create: (options: any) => Promise<LoadingElementType> }) {
+  const dismissEventName = `on${displayName}DidDismiss`;
+
+  type ReactControllerProps = {
+    isOpen: boolean;
+    onDidDismiss: (event: CustomEvent<OverlayEventDetail>) => void;
   }
+  type Props = OptionsType & ReactControllerProps;
 
-  return class ReactControllerComponent extends React.Component<T & IonicReactInternalProps> {
-    element: E;
-    controllerElement: C;
+  return class ReactControllerComponent extends React.Component<Props> {
+    controller: LoadingElementType;
+    id: string;
 
-    constructor(props: T & IonicReactInternalProps) {
+    constructor(props: Props) {
       super(props);
+      this.id = generateUniqueId();
     }
 
     static get displayName() {
@@ -24,22 +30,32 @@ export function createControllerComponent<T, E extends HTMLElement, C extends HT
     }
 
     async componentDidMount() {
-      this.controllerElement = ensureElementInBody<C>(controllerTagName);
-      await (this.controllerElement as any).componentOnReady();
+      const { isOpen } = this.props;
+      if (isOpen) {
+        this.present();
+      }
     }
 
-    async componentDidUpdate(prevProps: T & IonicReactInternalProps) {
-      if (prevProps.show !== this.props.show && this.props.show === true) {
-        const { children, show, ...cProps} = this.props as any;
-
-        this.element = await (this.controllerElement as any).create(cProps);
-        await (this.element as any).present();
-
-        attachEventProps(this.element, cProps);
+    async componentDidUpdate(prevProps: Props) {
+      if (prevProps.isOpen !== this.props.isOpen && this.props.isOpen === true) {
+        this.present(prevProps);
       }
-      if (prevProps.show !== this.props.show && this.props.show === false) {
-        return await (this.element as any).dismiss();
+      if (this.controller && prevProps.isOpen !== this.props.isOpen && this.props.isOpen === false) {
+        await this.controller.dismiss();
       }
+    }
+
+    async present(prevProps?: Props) {
+      const { isOpen, onDidDismiss, ...cProps } = this.props;
+      const elementProps =  {
+        ...cProps,
+        [dismissEventName]: onDidDismiss
+      };
+      this.controller = await controller.create({
+        ...elementProps
+      });
+      attachEventProps(this.controller as any, elementProps, prevProps);
+      this.controller.present();
     }
 
     render(): null {
@@ -47,4 +63,3 @@ export function createControllerComponent<T, E extends HTMLElement, C extends HT
     }
   }
 }
-

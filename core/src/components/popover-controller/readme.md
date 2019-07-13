@@ -27,15 +27,9 @@ async function presentPopover() {
 
 ## Methods
 
-### `create<T extends ComponentRef>(opts: PopoverOptions<T>) => Promise<HTMLIonPopoverElement>`
+### `create<T extends ComponentRef>(options: PopoverOptions<T>) => Promise<HTMLIonPopoverElement>`
 
 Create a popover overlay with popover options.
-
-#### Parameters
-
-| Name   | Type                | Description |
-| ------ | ------------------- | ----------- |
-| `opts` | `PopoverOptions<T>` |             |
 
 #### Returns
 
@@ -46,14 +40,6 @@ Type: `Promise<HTMLIonPopoverElement>`
 ### `dismiss(data?: any, role?: string | undefined, id?: string | undefined) => Promise<boolean>`
 
 Dismiss the open popover overlay.
-
-#### Parameters
-
-| Name   | Type                  | Description |
-| ------ | --------------------- | ----------- |
-| `data` | `any`                 |             |
-| `role` | `string \| undefined` |             |
-| `id`   | `string \| undefined` |             |
 
 #### Returns
 

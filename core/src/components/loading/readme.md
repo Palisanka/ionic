@@ -5,12 +5,12 @@ An overlay that can be used to indicate activity while blocking user interaction
 
 ### Creating
 
-Loading indicators can be created using a [Loading Controller](../../loading-controller/LoadingController). They can be customized by passing loading options in the loading controller's create method. The spinner name should be passed in the `spinner` property, and any optional HTML can be passed in the `content` property. If a value is not passed to `spinner` the loading indicator will use the spinner specified by the platform.
+Loading indicators can be created using a [Loading Controller](../loading-controller). They can be customized by passing loading options in the loading controller's `create()` method. The spinner name should be passed in the `spinner` property. If a value is not passed to `spinner` the loading indicator will use the spinner specified by the platform.
 
 
 ### Dismissing
 
-The loading indicator can be dismissed automatically after a specific amount of time by passing the number of milliseconds to display it in the `duration` of the loading options. By default the loading indicator will show even during page changes, but this can be disabled by setting `dismissOnPageChange` to `true`. To dismiss the loading indicator after creation, call the `dismiss()` method on the loading instance. The `onDidDismiss` function can be called to perform an action after the loading indicator is dismissed.
+The loading indicator can be dismissed automatically after a specific amount of time by passing the number of milliseconds to display it in the `duration` of the loading options. To dismiss the loading indicator after creation, call the `dismiss()` method on the loading instance. The `onDidDismiss` function can be called to perform an action after the loading indicator is dismissed.
 
 
 <!-- Auto Generated Below -->
@@ -37,7 +37,11 @@ export class LoadingExample {
       message: 'Hellooo',
       duration: 2000
     });
-    return await loading.present();
+    await loading.present();
+    
+    const { role, data } = await loading.onDidDismiss();
+    
+    console.log('Loading dismissed!');
   }
 
   async presentLoadingWithOptions() {
@@ -65,7 +69,12 @@ async function presentLoading() {
     message: 'Hellooo',
     duration: 2000
   });
-  return await loading.present();
+  
+  await loading.present();
+    
+  const { role, data } = await loading.onDidDismiss();
+  
+  console.log('Loading dismissed!');
 }
 
 async function presentLoadingWithOptions() {
@@ -81,6 +90,86 @@ async function presentLoadingWithOptions() {
   });
   return await loading.present();
 }
+```
+
+
+### React
+
+```tsx
+import React, { useState } from 'react';
+import { IonLoading, IonButton, IonContent } from '@ionic/react';
+
+export const LoadingExample: React.FunctionComponent = () => {
+  const [showLoading, setShowLoading] = useState(true);
+
+  setTimeout(() => {
+    setShowLoading(false);
+  }, 2000);
+
+  return (
+    <IonContent>
+      <IonButton onClick={() => setShowLoading(true)}>Show Loading</IonButton>
+      <IonLoading
+        isOpen={showLoading}
+        onDidDismiss={() => setShowLoading(false)}
+        message={'Loading...'}
+        duration={5000}
+      />
+    </IonContent>
+  );
+};
+```
+
+
+### Vue
+
+```html
+<template>
+  <IonVuePage :title="'Loading'">
+    <ion-button @click="presentLoading">Show Loading</ion-button>
+    <br />
+    <ion-button @click="presentLoadingWithOptions">Show Loading</ion-button>
+  </IonVuePage>
+</template>
+
+<script>
+export default {
+  props: {
+    timeout: { type: Number, default: 1000 },
+  },
+  methods: {
+    presentLoading() {
+      return this.$ionic.loadingController
+        .create({
+          message: 'Loading',
+          duration: this.timeout,
+        })
+        .then(l => {
+          setTimeout(function() {
+            l.dismiss()
+          }, this.timeout)
+          return l.present()
+        })
+    },
+    presentLoadingWithOptions() {
+      return this.$ionic.loadingController
+        .create({
+          spinner: null,
+          duration: this.timeout,
+          message: 'Please wait...',
+          translucent: true,
+          cssClass: 'custom-class custom-loading',
+        })
+        .then(l => {
+          setTimeout(function() {
+            l.dismiss()
+          }, this.timeout)
+          return l.present()
+        })
+    },
+  },
+}
+</script>
 ```
 
 
@@ -105,12 +194,12 @@ async function presentLoadingWithOptions() {
 
 ## Events
 
-| Event                   | Description                               | Type                              |
-| ----------------------- | ----------------------------------------- | --------------------------------- |
-| `ionLoadingDidDismiss`  | Emitted after the loading has dismissed.  | `CustomEvent<OverlayEventDetail>` |
-| `ionLoadingDidPresent`  | Emitted after the loading has presented.  | `CustomEvent<void>`               |
-| `ionLoadingWillDismiss` | Emitted before the loading has dismissed. | `CustomEvent<OverlayEventDetail>` |
-| `ionLoadingWillPresent` | Emitted before the loading has presented. | `CustomEvent<void>`               |
+| Event                   | Description                               | Type                                   |
+| ----------------------- | ----------------------------------------- | -------------------------------------- |
+| `ionLoadingDidDismiss`  | Emitted after the loading has dismissed.  | `CustomEvent<OverlayEventDetail<any>>` |
+| `ionLoadingDidPresent`  | Emitted after the loading has presented.  | `CustomEvent<void>`                    |
+| `ionLoadingWillDismiss` | Emitted before the loading has dismissed. | `CustomEvent<OverlayEventDetail<any>>` |
+| `ionLoadingWillPresent` | Emitted before the loading has presented. | `CustomEvent<void>`                    |
 
 
 ## Methods
@@ -118,13 +207,6 @@ async function presentLoadingWithOptions() {
 ### `dismiss(data?: any, role?: string | undefined) => Promise<boolean>`
 
 Dismiss the loading overlay after it has been presented.
-
-#### Parameters
-
-| Name   | Type                  | Description |
-| ------ | --------------------- | ----------- |
-| `data` | `any`                 |             |
-| `role` | `string \| undefined` |             |
 
 #### Returns
 
@@ -176,6 +258,21 @@ Type: `Promise<void>`
 | `--spinner-color` | Color of the loading spinner         |
 | `--width`         | Width of the loading dialog          |
 
+
+## Dependencies
+
+### Depends on
+
+- [ion-backdrop](../backdrop)
+- [ion-spinner](../spinner)
+
+### Graph
+```mermaid
+graph TD;
+  ion-loading --> ion-backdrop
+  ion-loading --> ion-spinner
+  style ion-loading fill:#f9f,stroke:#333,stroke-width:4px
+```
 
 ----------------------------------------------
 

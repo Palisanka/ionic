@@ -53,6 +53,55 @@ The tab bar is a UI component that contains a set of [tab buttons](../tab-button
 ```
 
 
+### React
+
+```tsx
+import React from 'react';
+import { IonTabs, IonTabBar, IonTabButton, IonIcon, IonContent } from '@ionic/react';
+
+export const TabBarExample: React.FunctionComponent = () => (
+  <IonContent>
+    <IonTabs>
+      {/*-- Tab bar --*/}
+      <IonTabBar slot="bottom">
+        <IonTabButton tab="account">
+          <IonIcon name="person" />
+        </IonTabButton>
+        <IonTabButton tab="contact">
+          <IonIcon name="call" />
+        </IonTabButton>
+        <IonTabButton tab="settings">
+          <IonIcon name="settings" />
+        </IonTabButton>
+      </IonTabBar>
+    </IonTabs>
+  </IonContent>
+);
+```
+
+
+### Vue
+
+```html
+<template>
+  <ion-tabs>
+    <!-- Tab bar -->
+    <ion-tab-bar slot="bottom">
+      <ion-tab-button tab="account">
+        <ion-icon name="person"></ion-icon>
+      </ion-tab-button>
+      <ion-tab-button tab="contact">
+        <ion-icon name="call"></ion-icon>
+      </ion-tab-button>
+      <ion-tab-button tab="settings">
+        <ion-icon name="settings"></ion-icon>
+      </ion-tab-button>
+    </ion-tab-bar>
+  </ion-tabs>
+</template>
+```
+
+
 
 ## Properties
 

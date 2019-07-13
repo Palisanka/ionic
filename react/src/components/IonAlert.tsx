@@ -1,8 +1,6 @@
-import { Components } from '@ionic/core';
+import { JSX, alertController } from '@ionic/core';
 import { createControllerComponent } from './createControllerComponent';
-import { Omit } from './types';
 
-export type AlertOptions = Omit<Components.IonAlertAttributes, 'overlayIndex'>;
+export type AlertOptions = JSX.IonAlert;
 
-const IonAlert = createControllerComponent<AlertOptions, HTMLIonAlertElement, HTMLIonAlertControllerElement>('ion-alert', 'ion-alert-controller')
-export default IonAlert;
+export const IonAlert = /*@__PURE__*/createControllerComponent<AlertOptions, HTMLIonAlertElement>('IonAlert', alertController)

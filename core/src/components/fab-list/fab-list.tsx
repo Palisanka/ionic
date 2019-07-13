@@ -1,4 +1,6 @@
-import { Component, ComponentInterface, Element, Prop, Watch } from '@stencil/core';
+import { Component, ComponentInterface, Element, Prop, Watch, h } from '@stencil/core';
+
+import { getIonMode } from '../../global/ionic-global';
 
 @Component({
   tag: 'ion-fab-list',
@@ -6,10 +8,11 @@ import { Component, ComponentInterface, Element, Prop, Watch } from '@stencil/co
   shadow: true
 })
 export class FabList implements ComponentInterface {
+
   @Element() el!: HTMLIonFabElement;
 
   /**
-   * If `true`, the fab list will be show all fab buttons in the list.
+   * If `true`, the fab list will show all fab buttons in the list.
    */
   @Prop() activated = false;
 
@@ -30,8 +33,10 @@ export class FabList implements ComponentInterface {
   @Prop() side: 'start' | 'end' | 'top' | 'bottom' = 'bottom';
 
   hostData() {
+    const mode = getIonMode(this);
     return {
       class: {
+        [mode]: true,
         'fab-list-active': this.activated,
         [`fab-list-side-${this.side}`]: true
       }

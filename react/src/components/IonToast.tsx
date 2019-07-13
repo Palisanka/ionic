@@ -1,8 +1,6 @@
-import { Components } from '@ionic/core';
+import { JSX, toastController } from '@ionic/core';
 import { createControllerComponent } from './createControllerComponent';
-import { Omit } from './types';
 
-export type ToastOptions = Omit<Components.IonToastAttributes, 'overlayIndex'>;
+export type ToastOptions = JSX.IonToast;
 
-const IonToast = createControllerComponent<ToastOptions, HTMLIonToastElement, HTMLIonToastControllerElement>('ion-toast', 'ion-toast-controller')
-export default IonToast;
+export const IonToast = /*@__PURE__*/createControllerComponent<ToastOptions, HTMLIonToastElement>('IonToast', toastController);

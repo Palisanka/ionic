@@ -1,5 +1,7 @@
 import { Component, ComponentInterface } from '@stencil/core';
 
+import { getIonMode } from '../../global/ionic-global';
+
 @Component({
   tag: 'ion-buttons',
   styleUrls: {
@@ -8,4 +10,14 @@ import { Component, ComponentInterface } from '@stencil/core';
   },
   scoped: true,
 })
-export class Buttons implements ComponentInterface {}
+export class Buttons implements ComponentInterface {
+
+  hostData() {
+    const mode = getIonMode(this);
+    return {
+      class: {
+        [mode]: true
+      }
+    };
+  }
+}

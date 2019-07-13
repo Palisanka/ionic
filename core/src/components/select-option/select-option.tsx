@@ -1,5 +1,7 @@
 import { Component, ComponentInterface, Element, Event, EventEmitter, Prop } from '@stencil/core';
 
+import { getIonMode } from '../../global/ionic-global';
+
 @Component({
   tag: 'ion-select-option',
   shadow: true,
@@ -53,9 +55,14 @@ export class SelectOption implements ComponentInterface {
   }
 
   hostData() {
+    const mode = getIonMode(this);
+
     return {
       'role': 'option',
-      'id': this.inputId
+      'id': this.inputId,
+      class: {
+        [mode]: true,
+      }
     };
   }
 }

@@ -1,8 +1,6 @@
-import { Components } from '@ionic/core';
+import { JSX, loadingController } from '@ionic/core';
 import { createControllerComponent } from './createControllerComponent';
-import { Omit } from './types';
 
-export type LoadingOptions = Omit<Components.IonLoadingAttributes, 'overlayIndex'>;
+export type LoadingOptions = JSX.IonLoading;
 
-const IonActionSheet = createControllerComponent<LoadingOptions, HTMLIonLoadingElement, HTMLIonLoadingControllerElement>('ion-loading', 'ion-loading-controller')
-export default IonActionSheet;
+export const IonLoading = /*@__PURE__*/createControllerComponent<LoadingOptions, HTMLIonLoadingElement>('IonLoading', loadingController)

@@ -1,5 +1,6 @@
 import { Component, ComponentInterface, Element, Event, EventEmitter, Listen, Prop, Watch } from '@stencil/core';
 
+import { getIonMode } from '../../global/ionic-global';
 import { RadioGroupChangeEventDetail } from '../../interface';
 
 @Component({
@@ -120,9 +121,13 @@ export class RadioGroup implements ComponentInterface {
   }
 
   hostData() {
+    const mode = getIonMode(this);
     return {
       'role': 'radiogroup',
-      'aria-labelledby': this.labelId
+      'aria-labelledby': this.labelId,
+      class: {
+        [mode]: true,
+      }
     };
   }
 }
