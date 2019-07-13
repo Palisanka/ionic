@@ -13,9 +13,9 @@ import { getIonMode } from '../../global/ionic-global';
 export class Reorder implements ComponentInterface {
 
   @Listen('click', { capture: true })
-  onClick(ev: Event) {
-    ev.preventDefault();
-    ev.stopImmediatePropagation();
+  onClick() {
+    // ev.preventDefault();
+    // ev.stopImmediatePropagation();
   }
 
   hostData() {
